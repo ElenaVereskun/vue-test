@@ -1,13 +1,23 @@
 <template>
   <div class="app">
-    <PostForm @create="createPost" />
-    <PostList :posts="posts" />
+    <h1>Список задач</h1>
+    <div class="app__btns">
+      <my-button @click="showDialog">Добавить задачу</my-button>
+      <my-select v-model="selectedSort" :options="sortOptions"></my-select>
+    </div>
+
+    <my-dialog v-model:show="dialogVisible">
+      <PostForm @create="createPost" />
+    </my-dialog>
+    <PostList :posts="posts" @remove="removePost" v-if="!isPostLoading" />
+    <div v-else>Идет загрузка...</div>
   </div>
 </template>
 
 <script>
 import PostForm from "@/components/PostForm.vue";
 import PostList from "@/components/PostList.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -16,18 +26,43 @@ export default {
   },
   data() {
     return {
-      posts: [
-        { id: 1, title: "JS", body: "Описание поста" },
-        { id: 2, title: "JS 2", body: "Описание поста 2" },
-        { id: 3, title: "JS 3", body: "Описание поста 3" },
-        { id: 4, title: "JS 4", body: "Описание поста 4" },
+      posts: [],
+      dialogVisible: false,
+      isPostLoading: false,
+      selectedSort: "",
+      sortOptions: [
+        { value: "title", name: "По названию" },
+        { value: "body", name: "По описанию" },
       ],
     };
   },
   methods: {
     createPost(post) {
       this.posts.push(post);
+      this.dialogVisible = false;
     },
+    removePost(post) {
+      this.posts = this.posts.filter((p) => p.id !== post.id);
+    },
+    showDialog() {
+      this.dialogVisible = true;
+    },
+    async fetchPosts() {
+      try {
+        this.isPostLoading = true;
+        const response = await axios.get(
+          "https://jsonplaceholder.typicode.com/posts?_limit=10"
+        );
+        this.posts = response.data;
+      } catch (e) {
+        alert("Ошибка");
+      } finally {
+        this.isPostLoading = false;
+      }
+    },
+  },
+  mounted() {
+    this.fetchPosts();
   },
 };
 </script>
@@ -40,5 +75,9 @@ export default {
 }
 .app {
   padding: 20px;
+}
+.app__btns {
+  display: flex;
+  justify-content: space-between;
 }
 </style>
