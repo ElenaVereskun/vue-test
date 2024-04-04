@@ -11,12 +11,15 @@
 export default {
   name: "my-select",
   props: {
-    type: String,
+    modelValue: {
+      type: String,
+    },
+    options: {
+      type: Array,
+      default: () => [],
+    },
   },
-  options: {
-    type: Array,
-    default: () => [],
-  },
+
   methods: {
     changeOption(event) {
       this.$emit("update:modelValue", event.target.value);

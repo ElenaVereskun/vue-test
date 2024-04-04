@@ -3,7 +3,7 @@
     <h1>Список задач</h1>
     <div class="app__btns">
       <my-button @click="showDialog">Добавить задачу</my-button>
-      <my-select v-model="selectedSort" :options="sortOptions"></my-select>
+      <my-select v-model="selectedSort" :options="sortOptions" />
     </div>
 
     <my-dialog v-model:show="dialogVisible">
@@ -64,6 +64,16 @@ export default {
   mounted() {
     this.fetchPosts();
   },
+  computed: {
+    sortedPosts() {
+      return [...this.posts].sort((post1, post2) => {
+        return post1[this.selectedSort]?.localeCompare(
+          post2[this.selectedSort]
+        );
+      });
+    },
+  },
+  watch: {},
 };
 </script>
 
